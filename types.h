@@ -24,7 +24,7 @@ typedef struct pair_val {
 } pair_val;
 
 typedef struct pair_stack {
-    int stack_depth;
-    pair_val* pair_stack[MAX_STACK_DEPTH];
+    unsigned int depth;
+    pair_val* stack[MAX_STACK_DEPTH];
 } pair_stack;
 
