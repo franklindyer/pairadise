@@ -1,0 +1,8 @@
+fix(
+    pair(empty,pair(empty,pair(empty,empty))),
+    cond(
+        x0,
+        empty,
+        x2
+    )
+)

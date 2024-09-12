@@ -1,0 +1,19 @@
+let(
+    pair(empty,pair(empty,pair(empty,pair(empty,empty))))
+    cond(
+        fix(
+            pair(x0,empty),
+            cond(
+                x1,
+                empty,
+                cond(
+                    x2,
+                    pair(empty,x3),
+                    pair(x5,pair(empty,pair(empty,x3)))
+                )
+            )
+        ),
+        empty,
+        x2
+    )
+)

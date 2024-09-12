@@ -1,0 +1,9 @@
+cond(
+    cond(
+        pair(pair(pair(empty,empty),empty),pair(empty,empty)),
+        empty,
+        x0
+    ),
+    empty,
+    x0
+)

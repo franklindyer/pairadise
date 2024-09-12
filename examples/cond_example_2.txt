@@ -1,0 +1,5 @@
+cond(
+    empty,
+    pair(empty,empty),
+    empty
+)

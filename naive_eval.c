@@ -24,6 +24,8 @@ void ps_pop(pair_stack* stack) {
 }
 
 int pair_vals_equal(pair_val* val1, pair_val* val2) {
+    if (val1 == NULL || val2 == NULL)
+        return (val1 == NULL && val2 == NULL);
     int l1null = val1->left == NULL;
     int l2null = val2->left == NULL;
     int r1null = val1->right == NULL;
@@ -79,8 +81,8 @@ pair_val* eval_cond(pair_expr* cond, pair_expr* case_empty, pair_expr* case_full
 }
 
 pair_val* eval_fix(pair_expr* init, pair_expr* iter, pair_stack* stack) {
-    pair_val* init_val = eval_pair_expr(init, stack);
-    pair_val* next_val = init_val;
+    pair_val* init_val;
+    pair_val* next_val = eval_pair_expr(init, stack);
     do {
         init_val = next_val;
         ps_push(init_val, stack);

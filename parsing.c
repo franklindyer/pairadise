@@ -9,6 +9,10 @@ char fgetc_nows(FILE* in) {
     return c;
 }
 
+void fgetc_until(FILE* in, char expected) {
+    while (fgetc(in) != expected);
+}
+
 uint8_t parse_pair_expr_type(FILE* in) {
     char c = fgetc_nows(in);
     if (c == 'p') {
@@ -48,7 +52,7 @@ int parse_n_args_expr(int n, FILE* in, pair_expr** dst) {
         if (i < (n-1))
             fseek(in, 1, SEEK_CUR); // Comma
     }
-    fseek(in, 1, SEEK_CUR); // Close paren
+    fgetc_until(in, ')'); // Close paren
     return 0;
 }
 
@@ -61,11 +65,11 @@ int parse_let(FILE* in, pair_expr** dst) {
 }
 
 int parse_cond(FILE* in, pair_expr** dst) {
-    return 1;
+    return parse_n_args_expr(3, in, dst);
 }
 
 int parse_fix(FILE* in, pair_expr** dst) {
-    return 1;
+    return parse_n_args_expr(2, in, dst);
 }
 
 int parse_pair_expr(FILE* in, pair_expr** dst) {
@@ -82,7 +86,15 @@ int parse_pair_expr(FILE* in, pair_expr** dst) {
         return 0;
     } else if (ptype & LET_EXPR) {
         parse_let(in, dst);
+        return 0;
+    } else if (ptype & COND_EXPR) {
+        parse_cond(in, dst);
+        return 0;
+    } else if (ptype & FIX_EXPR) {
+        parse_fix(in, dst);
+        return 0;
     }
+    printf("Unrecognized pair expression type encountered while parsing.\n");
     return 1;
 }
 
