@@ -99,5 +99,14 @@ int parse_pair_expr(FILE* in, pair_expr** dst) {
 }
 
 void free_pair_expr(pair_expr* ast) {
+    uint8_t ptype = ast->type;
+    if (ptype & PAIR_EXPR || ptype & LET_EXPR || ptype & COND_EXPR || ptype & FIX_EXPR) {
+        free_pair_expr(ast->ops[0]);
+        free_pair_expr(ast->ops[1]);
+    }
+    if (ptype & COND_EXPR) {
+        free_pair_expr(ast->ops[2]);
+    }
+    free(ast);
     return;
 }

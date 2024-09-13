@@ -1,5 +1,5 @@
 let(
-    pair(empty,pair(empty,pair(empty,pair(empty,empty))))
+    pair(empty,pair(empty,pair(empty,pair(empty,pair(empty,pair(empty,empty))))))
     cond(
         fix(
             pair(x0,empty),

@@ -20,6 +20,7 @@ typedef struct pair_expr {
 
 typedef struct pair_val {
     uint8_t flags;
+    int refcount;
     struct pair_val* left;
     struct pair_val* right;
 } pair_val;
