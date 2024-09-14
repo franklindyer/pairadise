@@ -122,6 +122,19 @@ pair_val* eval_fix(pair_expr* init, pair_expr* iter, pair_stack* stack) {
     return init_val; 
 }
 
+pair_val* eval_in() {
+    pair_val* in_val;
+    printf("Enter a pair expression: ");
+    fflush(stdout);
+    while (read_pair_val(&in_val)) {
+        while (getchar() != '\n');
+        printf("Invalid pair expression. Try again: ");
+        fflush(stdout);
+    }
+    while (getchar() != '\n');
+    return in_val;
+}
+
 pair_val* eval_pair_expr(pair_expr* expr, pair_stack* stack) {
     if (expr->type & EMPTY_EXPR)
         return eval_empty();
@@ -135,6 +148,8 @@ pair_val* eval_pair_expr(pair_expr* expr, pair_stack* stack) {
         return eval_cond(expr->ops[0], expr->ops[1], expr->ops[2], stack);
     else if (expr->type & FIX_EXPR)
         return eval_fix(expr->ops[0], expr->ops[1], stack);
+    else if (expr->type & IN_EXPR)
+        return eval_in();
     return NULL;
 }
 
@@ -147,4 +162,21 @@ void print_pair_val(pair_val* val) {
         print_pair_val(val->right);
         printf(")");
     }
+}
+
+int read_pair_val(pair_val** val) {
+    char c = getchar();
+    if (c == '*') {
+        *val = NULL;
+        return 0;
+    } else if (c == '(') {
+        pair_val* new_val = new_pair_val();
+        if (read_pair_val(&(new_val->left)) || (getchar() != ',') || read_pair_val(&(new_val->right))) {
+            try_collect_pair(new_val);
+            return 1;
+        }
+        *val = new_val;
+        return 0;
+    } else
+        return 1;
 }

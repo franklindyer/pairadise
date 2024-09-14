@@ -8,7 +8,8 @@
 #define LET_EXPR 8
 #define COND_EXPR 16
 #define FIX_EXPR 32
-#define INVALID_EXPR 64
+#define IN_EXPR 64
+#define INVALID_EXPR 128
 
 #define MAX_STACK_DEPTH 1024
 

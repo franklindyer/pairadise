@@ -32,6 +32,9 @@ uint8_t parse_pair_expr_type(FILE* in) {
     } else if (c == 'f') {
         fseek(in, 2, SEEK_CUR);
         return FIX_EXPR;
+    } else if (c == 'i') {
+        fseek(in, 1, SEEK_CUR);
+        return IN_EXPR;
     } else {
         return INVALID_EXPR;
     }
@@ -72,6 +75,10 @@ int parse_fix(FILE* in, pair_expr** dst) {
     return parse_n_args_expr(2, in, dst);
 }
 
+int parse_in(FILE* in, pair_expr** dst) {
+    return 0;
+}
+
 int parse_pair_expr(FILE* in, pair_expr** dst) {
     uint8_t ptype = parse_pair_expr_type(in);
     *dst = (pair_expr*)malloc(sizeof(pair_expr));
@@ -92,6 +99,9 @@ int parse_pair_expr(FILE* in, pair_expr** dst) {
         return 0;
     } else if (ptype & FIX_EXPR) {
         parse_fix(in, dst);
+        return 0;
+    } else if (ptype & IN_EXPR) {
+        parse_in(in, dst);
         return 0;
     }
     printf("Unrecognized pair expression type encountered while parsing.\n");
