@@ -148,19 +148,3 @@ void print_pair_val(pair_val* val) {
         printf(")");
     }
 }
-
-/* int main() {
-    printf("Hello, world!\n");
-
-    pair_val* p1 = new_pair_val();
-    print_pair_val(p1); printf("\n");
-
-    pair_val* p2 = new_pair_val();
-    p2->left = p1;
-    print_pair_val(p2); printf("\n");
-
-    pair_val* p3 = new_pair_val();
-    p3->left = p1;
-    p3->right = p2;
-    print_pair_val(p3); printf("\n");
-} */
