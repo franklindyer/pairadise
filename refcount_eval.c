@@ -139,7 +139,7 @@ pair_val* eval_pair_expr(pair_expr* expr, pair_stack* stack) {
 }
 
 void print_pair_val(pair_val* val) {
-    if (val == NULL) printf("_");
+    if (val == NULL) printf("*");
     else {
         printf("(");
         print_pair_val(val->left);
