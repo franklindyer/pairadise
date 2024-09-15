@@ -16,6 +16,7 @@ void try_collect_pair(pair_val* pointer) {
         return;
     delete_pair_pointer(&(pointer->left));
     delete_pair_pointer(&(pointer->right));
+    // printf("About to free from address %p\n", pointer);
     free(pointer);
 }
 
@@ -28,9 +29,10 @@ void assign_pair_pointer(pair_val** pointer, pair_val* pointee) {
 
 pair_val* new_pair_val() {
     pair_val* new_pair = (pair_val*)malloc(sizeof(pair_val));
+    // printf("Just malloced from address %p\n", new_pair);
     new_pair->left = NULL;
     new_pair->right = NULL;
-    new_pair->refcount = 0;
+    new_pair->refcount = 1;
     return new_pair;
 }
 
@@ -68,56 +70,82 @@ int pair_vals_equal(pair_val* val1, pair_val* val2) {
 }
 
 pair_val* eval_empty() {
+//    printf("Evaluating empty\n");
     return NULL;
 }
 
 pair_val* eval_pair(pair_expr* left, pair_expr* right, pair_stack* stack) {
-    pair_val* left_val = eval_pair_expr(left, stack);
-    pair_val* right_val = eval_pair_expr(right, stack);
+//    printf("Evaluating pair\n");
+
     pair_val* parent_val = new_pair_val();
-    assign_pair_pointer(&(parent_val->left), left_val);
-    assign_pair_pointer(&(parent_val->right), right_val);
+
+    parent_val->left = eval_pair_expr(left, stack);
+    parent_val->right = eval_pair_expr(right, stack);
+
     return parent_val;
 }
 
 pair_val* eval_var(pair_expr* expr, pair_stack* stack) {
+//    printf("Evaluating var\n");
+
+    pair_val* ret_val = NULL;
     int ind = expr->inds[0];
-    return stack->valmap[ind];
+    assign_pair_pointer(&ret_val, stack->valmap[ind]);
+    return ret_val;
 }
 
 pair_val* eval_let(pair_expr* let_expr, pair_stack* stack) {
+//    printf("Evaluating let\n");
+
+    pair_val* ret_val = NULL;
     pair_val* to_sub = eval_pair_expr(let_expr->ops[0], stack);
+
     ps_push(let_expr->inds[0], to_sub, stack);
-    pair_val* res = eval_pair_expr(let_expr->ops[1], stack);
+    delete_pair_pointer(&to_sub);
+    ret_val = eval_pair_expr(let_expr->ops[1], stack);
     ps_pop(stack);
-    return res; 
+
+    return ret_val; 
 }
 
 pair_val* eval_cond(pair_expr* cond_expr, pair_stack* stack) {
+//    printf("Evaluating cond\n");
+    
+    pair_val* ret_val = NULL;
     pair_val* cond_val = eval_pair_expr(cond_expr->ops[0], stack);
+
     if (cond_val == NULL) {
         return eval_pair_expr(cond_expr->ops[1], stack);
     }
-    pair_val* res_val = NULL;
+
     ps_push(cond_expr->inds[0], cond_val->left, stack);
     ps_push(cond_expr->inds[1], cond_val->right, stack);
-    assign_pair_pointer(&res_val, eval_pair_expr(cond_expr->ops[2], stack));
+    ret_val = eval_pair_expr(cond_expr->ops[2], stack);
     ps_pop(stack);
     ps_pop(stack);
+    
     delete_pair_pointer(&cond_val);
-    return res_val;
+
+    return ret_val;
 }
 
 pair_val* eval_fix(pair_expr* fix_expr, pair_stack* stack) {
+//    printf("Evaluating fix\n");
+
     pair_val* init_val = NULL;
     pair_val* next_val = NULL;
-    assign_pair_pointer(&next_val, eval_pair_expr(fix_expr->ops[0], stack));
+    next_val = eval_pair_expr(fix_expr->ops[0], stack);
+
     do {
         assign_pair_pointer(&init_val, next_val);
+        delete_pair_pointer(&next_val);
         ps_push(fix_expr->inds[0], init_val, stack);
-        assign_pair_pointer(&next_val, eval_pair_expr(fix_expr->ops[1], stack));
+        next_val = eval_pair_expr(fix_expr->ops[1], stack);
         ps_pop(stack);
     } while (!pair_vals_equal(init_val, next_val));
+
+    delete_pair_pointer(&next_val);
+    
     return init_val; 
 }
 
@@ -171,7 +199,7 @@ int read_pair_val(pair_val** val) {
     } else if (c == '(') {
         pair_val* new_val = new_pair_val();
         if (read_pair_val(&(new_val->left)) || (getchar() != ',') || read_pair_val(&(new_val->right))) {
-            try_collect_pair(new_val);
+            delete_pair_pointer(&new_val);
             return 1;
         }
         *val = new_val;

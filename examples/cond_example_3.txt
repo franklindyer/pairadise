@@ -2,8 +2,8 @@ cond(
     cond(
         pair(pair(pair(empty,empty),empty),pair(empty,empty)),
         empty,
-        x0
+        \x0,x1 x0
     ),
     empty,
-    x0
+    \x0,x1 x0
 )
