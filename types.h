@@ -15,7 +15,7 @@
 
 typedef struct pair_expr {
     uint8_t type;
-    uint8_t ind;
+    int inds[3];
     struct pair_expr* ops[3];
 } pair_expr;
 
@@ -28,6 +28,7 @@ typedef struct pair_val {
 
 typedef struct pair_stack {
     unsigned int depth;
-    pair_val* stack[MAX_STACK_DEPTH];
+    int stack[MAX_STACK_DEPTH];
+    pair_val* valmap[MAX_STACK_DEPTH];
 } pair_stack;
 

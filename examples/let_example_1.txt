@@ -1,4 +1,4 @@
 let(
     pair(pair(empty,empty),empty),
-    pair(x0,x0)
+    \x123 pair(x123,x123)
 )

@@ -19,8 +19,11 @@ int main(int argc, char* argv[]) {
     pval = eval_pair_expr(pexpr, pstack);
     free_pair_expr(pexpr);
 
-    print_pair_val(pval); 
+    print_pair_val(pval);
+    delete_pair_pointer(&pval);
     printf("\n");
+
+    free(pstack);
 
     return 0;
 }

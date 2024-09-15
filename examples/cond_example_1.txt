@@ -1,5 +1,5 @@
 cond(
     pair(pair(empty,empty),empty),
     empty,
-    pair(pair(x0,x1),pair(x1,x0))
+    \x0,x1 pair(pair(x0,x1),pair(x1,x0))
 )

@@ -1,0 +1,4 @@
+let(
+    in,
+    \x0 pair(x0,x0)
+)

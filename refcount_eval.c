@@ -40,13 +40,15 @@ pair_stack* new_pair_stack() {
     return stack;
 }
 
-void ps_push(pair_val* val, pair_stack* stack) {
-    assign_pair_pointer(&(stack->stack[stack->depth]), val);
+void ps_push(int id, pair_val* val, pair_stack* stack) {
+    stack->stack[stack->depth] = id;
+    assign_pair_pointer(&(stack->valmap[id]), val);
     stack->depth += 1;
 }
 
 void ps_pop(pair_stack* stack) {
-    delete_pair_pointer(&(stack->stack[stack->depth-1]));
+    delete_pair_pointer(&(stack->valmap[stack->stack[stack->depth-1]]));
+    stack->stack[stack->depth-1] = 0;
     stack->depth += -1;
 }
 
@@ -79,44 +81,41 @@ pair_val* eval_pair(pair_expr* left, pair_expr* right, pair_stack* stack) {
 }
 
 pair_val* eval_var(pair_expr* expr, pair_stack* stack) {
-    uint8_t ind = expr->ind;
-    if (ind >= stack->depth) {
-        return NULL;
-    }
-    return stack->stack[ind];
+    int ind = expr->inds[0];
+    return stack->valmap[ind];
 }
 
-pair_val* eval_let(pair_expr* val, pair_expr* expr, pair_stack* stack) {
-    pair_val* to_sub = eval_pair_expr(val, stack);
-    ps_push(to_sub, stack);
-    pair_val* res = eval_pair_expr(expr, stack);
+pair_val* eval_let(pair_expr* let_expr, pair_stack* stack) {
+    pair_val* to_sub = eval_pair_expr(let_expr->ops[0], stack);
+    ps_push(let_expr->inds[0], to_sub, stack);
+    pair_val* res = eval_pair_expr(let_expr->ops[1], stack);
     ps_pop(stack);
     return res; 
 }
 
-pair_val* eval_cond(pair_expr* cond, pair_expr* case_empty, pair_expr* case_full, pair_stack* stack) {
-    pair_val* cond_val = eval_pair_expr(cond, stack);
+pair_val* eval_cond(pair_expr* cond_expr, pair_stack* stack) {
+    pair_val* cond_val = eval_pair_expr(cond_expr->ops[0], stack);
     if (cond_val == NULL) {
-        return eval_pair_expr(case_empty, stack);
+        return eval_pair_expr(cond_expr->ops[1], stack);
     }
     pair_val* res_val = NULL;
-    ps_push(cond_val->left, stack);
-    ps_push(cond_val->right, stack);
-    try_collect_pair(cond_val);
-    assign_pair_pointer(&res_val, eval_pair_expr(case_full, stack));
+    ps_push(cond_expr->inds[0], cond_val->left, stack);
+    ps_push(cond_expr->inds[1], cond_val->right, stack);
+    assign_pair_pointer(&res_val, eval_pair_expr(cond_expr->ops[2], stack));
     ps_pop(stack);
     ps_pop(stack);
+    delete_pair_pointer(&cond_val);
     return res_val;
 }
 
-pair_val* eval_fix(pair_expr* init, pair_expr* iter, pair_stack* stack) {
+pair_val* eval_fix(pair_expr* fix_expr, pair_stack* stack) {
     pair_val* init_val = NULL;
     pair_val* next_val = NULL;
-    assign_pair_pointer(&next_val, eval_pair_expr(init, stack));
+    assign_pair_pointer(&next_val, eval_pair_expr(fix_expr->ops[0], stack));
     do {
         assign_pair_pointer(&init_val, next_val);
-        ps_push(init_val, stack);
-        assign_pair_pointer(&next_val, eval_pair_expr(iter, stack));
+        ps_push(fix_expr->inds[0], init_val, stack);
+        assign_pair_pointer(&next_val, eval_pair_expr(fix_expr->ops[1], stack));
         ps_pop(stack);
     } while (!pair_vals_equal(init_val, next_val));
     return init_val; 
@@ -143,11 +142,11 @@ pair_val* eval_pair_expr(pair_expr* expr, pair_stack* stack) {
     else if (expr->type & VAR_EXPR)
         return eval_var(expr, stack);
     else if (expr->type & LET_EXPR)
-        return eval_let(expr->ops[0], expr->ops[1], stack);
+        return eval_let(expr, stack);
     else if (expr->type & COND_EXPR)
-        return eval_cond(expr->ops[0], expr->ops[1], expr->ops[2], stack);
+        return eval_cond(expr, stack);
     else if (expr->type & FIX_EXPR)
-        return eval_fix(expr->ops[0], expr->ops[1], stack);
+        return eval_fix(expr, stack);
     else if (expr->type & IN_EXPR)
         return eval_in();
     return NULL;
