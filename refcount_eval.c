@@ -3,6 +3,8 @@
 
 #include "refcount_eval.h"
 
+#define PRINT_MALLOCS 1
+
 void delete_pair_pointer(pair_val** pointer) {
     if (*pointer == NULL)
         return;
@@ -16,7 +18,7 @@ void try_collect_pair(pair_val* pointer) {
         return;
     delete_pair_pointer(&(pointer->left));
     delete_pair_pointer(&(pointer->right));
-    // printf("About to free from address %p\n", pointer);
+    if (PRINT_MALLOCS) fprintf(stderr, "FREE %p\n", pointer);
     free(pointer);
 }
 
@@ -29,7 +31,7 @@ void assign_pair_pointer(pair_val** pointer, pair_val* pointee) {
 
 pair_val* new_pair_val() {
     pair_val* new_pair = (pair_val*)malloc(sizeof(pair_val));
-    // printf("Just malloced from address %p\n", new_pair);
+    if (PRINT_MALLOCS) fprintf(stderr, "MALLOC %p\n", new_pair);
     new_pair->left = NULL;
     new_pair->right = NULL;
     new_pair->refcount = 1;

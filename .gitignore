@@ -1,2 +1,4 @@
 **/*.swp
 **/*.out
+**/dump.txt
+**/results.txt
