@@ -76,22 +76,22 @@ pair_val* eval_empty() {
     return NULL;
 }
 
-pair_val* eval_pair(pair_expr* left, pair_expr* right, pair_stack* stack) {
+pair_val* eval_pair(pair_expr* pair_lit_expr, pair_stack* stack) {
 //    printf("Evaluating pair\n");
 
     pair_val* parent_val = new_pair_val();
 
-    parent_val->left = eval_pair_expr(left, stack);
-    parent_val->right = eval_pair_expr(right, stack);
+    parent_val->left = eval_pair_expr(pair_lit_expr->ops[0], stack);
+    parent_val->right = eval_pair_expr(pair_lit_expr->ops[1], stack);
 
     return parent_val;
 }
 
-pair_val* eval_var(pair_expr* expr, pair_stack* stack) {
+pair_val* eval_var(pair_expr* var_expr, pair_stack* stack) {
 //    printf("Evaluating var\n");
 
     pair_val* ret_val = NULL;
-    int ind = expr->inds[0];
+    int ind = var_expr->inds[0];
     assign_pair_pointer(&ret_val, stack->valmap[ind]);
     return ret_val;
 }
@@ -168,7 +168,7 @@ pair_val* eval_pair_expr(pair_expr* expr, pair_stack* stack) {
     if (expr->type & EMPTY_EXPR)
         return eval_empty();
     else if (expr->type & PAIR_EXPR)
-        return eval_pair(expr->ops[0], expr->ops[1], stack);
+        return eval_pair(expr, stack);
     else if (expr->type & VAR_EXPR)
         return eval_var(expr, stack);
     else if (expr->type & LET_EXPR)

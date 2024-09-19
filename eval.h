@@ -1,8 +1,8 @@
 #include "types.h"
 
 pair_val* eval_empty();
-pair_val* eval_pair(pair_expr* left, pair_expr* right, pair_stack* stack);
-pair_val* eval_var(pair_expr* expr, pair_stack* stack);
+pair_val* eval_pair(pair_expr* pair_lit_expr, pair_stack* stack);
+pair_val* eval_var(pair_expr* var_expr, pair_stack* stack);
 pair_val* eval_let(pair_expr* let_expr, pair_stack* stack);
 pair_val* eval_cond(pair_expr* cond_expr, pair_stack* stack);
 pair_val* eval_fix(pair_expr* fix_expr, pair_stack* stack);
