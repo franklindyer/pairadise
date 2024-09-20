@@ -1,25 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "refcount_eval.h"
+#include "eval.h"
 
 #define PRINT_MALLOCS 1
 
 void delete_pair_pointer(pair_val** pointer) {
     if (*pointer == NULL)
         return;
-    (*pointer)->refcount += -1;
-    try_collect_pair(*pointer);
+    if ((*pointer)->refcount == 1) {
+        delete_pair_pointer(&((*pointer)->left));
+        delete_pair_pointer(&((*pointer)->right));
+        if (PRINT_MALLOCS) 
+            fprintf(stderr, "FREE %p\n", *pointer);
+        free(*pointer);
+    } else {
+        (*pointer)->refcount += -1;
+    }
     *pointer = NULL;
-}
-
-void try_collect_pair(pair_val* pointer) {
-    if (pointer == NULL || pointer->refcount > 0)
-        return;
-    delete_pair_pointer(&(pointer->left));
-    delete_pair_pointer(&(pointer->right));
-    if (PRINT_MALLOCS) fprintf(stderr, "FREE %p\n", pointer);
-    free(pointer);
 }
 
 void assign_pair_pointer(pair_val** pointer, pair_val* pointee) {
@@ -200,7 +198,10 @@ int read_pair_val(pair_val** val) {
         return 0;
     } else if (c == '(') {
         pair_val* new_val = new_pair_val();
-        if (read_pair_val(&(new_val->left)) || (getchar() != ',') || read_pair_val(&(new_val->right))) {
+        if (read_pair_val(&(new_val->left)) 
+                || (getchar() != ',') 
+                || read_pair_val(&(new_val->right))
+                || (getchar() != ')')) {
             delete_pair_pointer(&new_val);
             return 1;
         }
